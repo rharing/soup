@@ -2,6 +2,7 @@ package soup
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -291,4 +292,19 @@ func TestHTML(t *testing.T) {
 	li := doc.Find("ul").Find("li")
 	assert.Equal(t, "<li>To a <a href=\"hello.jsp\">JSP page</a> right?</li>", li.HTML())
 
+}
+func Example_soup_from_real_xdc() {
+	num := 353
+	xdc_url := fmt.Sprintf("https://xkcd.com/%d", num)
+	resp, _ := Get(xdc_url)
+	doc := HTMLParse(resp)
+	title := doc.Find("div", "id", "ctitle").Text()
+	fmt.Println("Title of the comic :", title)
+	comicImg := doc.Find("div", "id", "comic").Find("img")
+	fmt.Println("Source of the image :", comicImg.Attrs()["src"])
+	fmt.Println("Underlying text of the image :", comicImg.Attrs()["title"])
+	// Output:
+	// Title of the comic : Python
+	// Source of the image : //imgs.xkcd.com/comics/python.png
+	// Underlying text of the image : I wrote 20 short programs in Python yesterday.  It was wonderful.  Perl, I'm leaving you.
 }
